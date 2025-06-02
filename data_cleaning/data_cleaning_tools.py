@@ -1,7 +1,3 @@
-#Takes the dataset of positives and removes irrelevant columns and irrelevant
-#observation from healthy tissues
-
-
 def select_columns_and_clean_iedb(data_frame):
     """
     Filters and cleans an IEDB dataset by selecting relevant columns and removing
@@ -24,6 +20,7 @@ def select_columns_and_clean_iedb(data_frame):
     pandas.DataFrame
         A cleaned DataFrame containing only relevant columns and filtered observations.
     """
+    
     list_columns = ['Epitope - Name',
                 'Epitope - Source Organism',
                 'Epitope - Species',
