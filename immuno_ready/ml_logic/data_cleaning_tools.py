@@ -45,7 +45,7 @@ def select_columns_and_clean_iedb(data_frame):
 
 # TODO: Check for weird characters in amino acid sequences
 
-def target_features(data_frame, drop_intermediary_columns = True):
+def create_target_features(data_frame, drop_intermediary_columns = True):
     import numpy as np
     ## Hard coding the decisions on safety scoring
     conditions_safety = [
