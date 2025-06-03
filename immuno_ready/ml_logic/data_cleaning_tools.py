@@ -20,7 +20,7 @@ def select_columns_and_clean_iedb(data_frame):
     pandas.DataFrame
         A cleaned DataFrame containing only relevant columns and filtered observations.
     """
-    
+
     list_columns = ['Epitope - Name',
                 'Epitope - Source Organism',
                 'Epitope - Species',
