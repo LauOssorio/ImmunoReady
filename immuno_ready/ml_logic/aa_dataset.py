@@ -9,7 +9,7 @@ import plotly.express as px
 
 # Misc
 from pathlib import Path
-from typing import Type
+from typing import Type, Dict, List
 
 #Sklearn
 from sklearn.pipeline import make_pipeline
@@ -119,12 +119,13 @@ def preprocess_dataset3(
 
 def pca_project_plotcumvar(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Project the preprocessed dataframe onto its principal components using PCA.
+    Project the preprocessed dataframe onto its principal components using PCA,
+    and transposed.
     Also plots the cumulative variance explained by the number of PCs.
 
     Parameters
     ----------
-    df : pd.DataFrame, output from the preprocess_dataset3 function
+    df : pd.DataFrame, transposed output from the preprocess_dataset3 function
 
     Returns
     -------
@@ -144,7 +145,7 @@ def pca_project_plotcumvar(df: pd.DataFrame) -> pd.DataFrame:
     plt.tight_layout()
     plt.show()
 
-    return dataset3_proj
+    return dataset3_proj.T
 
 
 def plot_pca_proj(df: pd.DataFrame, three_dim: bool = False) -> None:
@@ -167,6 +168,7 @@ def plot_pca_proj(df: pd.DataFrame, three_dim: bool = False) -> None:
         'E': 'Negatively Charged (Acidic)', 'G': 'Special', 'P': 'Special'
     }
 
+    df = df.T
     df["classification"] = df.index.map(AA_dict)
 
     if not three_dim:
@@ -216,3 +218,61 @@ def dataset3_process_all(path_index_file: str):
     df_processed = preprocess_dataset3(df)
     pca = pca_project_plotcumvar(df_processed)
     return pca
+
+
+
+def generate_matrix_for_peptide(
+    peptide: str,
+    pca_table: pd.DataFrame
+) -> np.ndarray:
+    """
+    Converts a peptide sequence into a matrix using PCA vector encoding.
+
+    Parameters
+    ----------
+    peptide : str
+        Amino acid sequence.
+    pca_table : pd.DataFrame
+        DataFrame output from the PCA generation.
+
+    Returns
+    -------
+    np.ndarray
+        2D array where each row corresponds to the PCA vector of an amino acid.
+
+    Raises
+    ------
+    KeyError
+        If a character in peptide is not present in pca_table.
+    """
+    return np.stack([pca_table[aa] for aa in peptide])
+
+
+
+
+def generate_matrices_for_dataset(
+    dataset: pd.DataFrame,
+    pca_table: pd.DataFrame
+) -> List[np.ndarray]:
+    """
+    Applies PCA vector encoding to all peptide sequences in a dataset.
+
+    Parameters
+    ----------
+    dataset : pd.DataFrame
+        DataFrame containing a column 'Epitope - Name' with peptide sequences.
+    pca_table : pd.DataFrame
+        DataFrame output from the PCA generation.
+
+    Returns
+    -------
+    List[np.ndarray]
+        List of 2D arrays, each corresponding to a peptide.
+
+    Raises
+    ------
+    KeyError
+        If 'Epitope - Name' column is missing or contains unknown amino acids.
+    """
+    peptides = dataset['Epitope - Name'].tolist()
+    return [generate_matrix_for_peptide(p, pca_table) for p in peptides]
