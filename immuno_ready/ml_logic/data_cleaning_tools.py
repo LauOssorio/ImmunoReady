@@ -46,6 +46,46 @@ def select_columns_and_clean_iedb(data_frame):
 # TODO: Check for weird characters in amino acid sequences
 
 def create_target_features(data_frame, drop_intermediary_columns = True):
+    """
+    Generates target features related to peptide safety and immunogenic strength
+    for use in predictive modeling or downstream analysis.
+
+    This function:
+    - Assigns a categorical safety label (`peptide_safety`) based on the
+      '1st in vivo Process - Process Type' using predefined rules.
+    - Aggregates safety information per peptide and retains the most conservative
+      (highest risk) classification using a safety ranking system.
+    - Assigns an immunogenicity strength score (`peptide_strength`) based on
+      assay results and conditions.
+    - Computes `target_strength`, a numeric score penalized by experimental
+      robustness (number of subjects tested) and enhanced by immune cell type.
+
+    Parameters
+    ----------
+    data_frame : pandas.DataFrame
+        The input IEDB dataset with epitope and assay information.
+
+    drop_intermediary_columns : bool, optional (default=True)
+        Whether to drop intermediary calculation columns (e.g., safety_rank,
+        peptide_strength, penalty_strength, etc.) from the final output.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The input DataFrame augmented with:
+        - `peptide_safety` : categorical safety label.
+        - `target_strength` : numeric immunogenicity score combining assay result,
+                              number of tested subjects, and immune cell type.
+        Intermediary columns are dropped unless `drop_intermediary_columns=False`.
+
+    Notes
+    -----
+    - Safety labels are hard-coded based on expert-assigned mappings of process types.
+    - If multiple entries exist for the same peptide, the most conservative
+      (lowest safety_rank) one is retained.
+    - Strength scores are heuristically assigned and should be treated as
+      semi-quantitative.
+    """
     import numpy as np
     ## Hard coding the decisions on safety scoring
     conditions_safety = [
@@ -66,7 +106,8 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
         data_frame["1st in vivo Process - Process Type"] =='Therapeutic vaccination',
         data_frame["1st in vivo Process - Process Type"] =='Administration in vivo to cause disease',
         data_frame["1st in vivo Process - Process Type"] == "nan",
-        data_frame["1st in vivo Process - Process Type"] =='Administration in vivo to prevent or reduce disease'
+        data_frame["1st in vivo Process - Process Type"] =='Administration in vivo to prevent or reduce disease',
+        data_frame["1st in vivo Process - Process Type"] == 'None'
         ]
 
     choices_safety = [
@@ -87,6 +128,7 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
         "very safe",
         "very safe",
         "unknown",
+        "very safe",
         "very safe"
     ]
 
@@ -117,7 +159,8 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
 
         # strength: from 0 to 10 (arbitrary)
 
-    conditions_strength = [data_frame["Assay - Qualitative Measure"] == 'Positive',
+    conditions_strength = [data_frame['1st in vivo Process - Disease'] == 'Healthy',
+                        data_frame["Assay - Qualitative Measure"] == 'Positive',
                         data_frame["Assay - Qualitative Measure"] =='Positive-Low',
                         data_frame["Assay - Qualitative Measure"] =='Positive-Intermediate',
                         data_frame["Assay - Qualitative Measure"] =='Positive-High',
@@ -126,6 +169,7 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
 
 
     choices_strength = [
+        0,
         7,
         3,
         8,
@@ -147,7 +191,8 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
         .transform(lambda x: x.sum(min_count=1)))
     # Number of experiments - penalising strength score
 
-    conditions_penal = [data_frame["averaged_number_subjects_tested"] <3 ,
+    conditions_penal = [data_frame['1st in vivo Process - Disease'] == 'Healthy',
+                        data_frame["averaged_number_subjects_tested"] <3 ,
                         (data_frame["averaged_number_subjects_tested"] >= 4)
                                 & (data_frame["averaged_number_subjects_tested"] < 10),
                         (data_frame["averaged_number_subjects_tested"] >=10)
@@ -157,6 +202,7 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
                         ]
 
     choices_penal = [
+        0,
         0.5,
         0.6,
         0.85,
@@ -165,21 +211,31 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
     ]
 
     data_frame["penalty_strength"] = np.select(conditions_penal, choices_penal, default = np.nan)
-    conditions_cells = [data_frame["cell_type_in_assay"] == "T cells lymphocytes" ,
+    conditions_cells = [data_frame["cell_type_in_assay"] == "None" ,
+                        data_frame["cell_type_in_assay"] == "T cells lymphocytes" ,
                        data_frame["cell_type_in_assay"] == "B cells lymphocytes"
                        ]
 
     choices_cells = [
+        0,
         1,
         0.5,
     ]
 
     data_frame["plus_cells"] = np.select(conditions_cells, choices_cells, default = np.nan)
 
-    data_frame["target_strength"] =data_frame["peptide_strength"]*data_frame["penalty_strength"] *data_frame["plus_cells"]
-    if drop_intermediary_columns = True:
-        data_frame = data_frame.drop(['safety_rank', 'peptide_strength', 'averaged_strength',
-       'averaged_number_subjects_tested', 'penalty_strength', 'plus_cells'], axis=1)
+    data_frame["target_strength"] = (data_frame["peptide_strength"] *
+                                     data_frame["penalty_strength"] *
+                                     data_frame["plus_cells"])
+
+    if drop_intermediary_columns == True:
+        data_frame = data_frame.drop(['safety_rank',
+                                      'peptide_strength',
+                                      'averaged_strength',
+                                      'averaged_number_subjects_tested',
+                                      'penalty_strength',
+                                      'plus_cells'],
+                                     axis=1)
 
         return data_frame
     else:
