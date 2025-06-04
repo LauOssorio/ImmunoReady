@@ -18,3 +18,9 @@ After downloading the dataset, we can run add_relevant_columns from add_relevant
 
 3. Safety and immunogenicity scores:
 Feature engineering of the target classes. This step is done after merging the previous two tables. Details about how the columns are build can be foun in the docstring of the fucntion create_target_features in data_cleaning_tools.py
+
+
+TODO:
+- Clean peptides with some more characters apart from the 20 amino acids.
+- Clean peptides with long sequences (>23 amino acids)
+- Remove peptides that have non-canonical amino acids such as "U"
