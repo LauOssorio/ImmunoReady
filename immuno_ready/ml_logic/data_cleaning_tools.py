@@ -36,8 +36,8 @@ def select_columns_and_clean_iedb(data_frame):
                 'MHC Restriction - Class']
 
     data_frame = data_frame[list_columns].drop_duplicates()
-    data_frame = data_frame['1st in vivo Process - Process Type'] != "No immunization"
-    data_frame = data_frame['1st in vivo Process - Disease'] != "healthy"
+    data_frame = data_frame[data_frame["1st in vivo Process - Process Type"] != "No immunization"]
+    data_frame = data_frame[data_frame["1st in vivo Process - Disease"] != "healthy"]
 
     return data_frame
 
@@ -226,6 +226,10 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
     data_frame["target_strength"] = (data_frame["peptide_strength"] *
                                      data_frame["penalty_strength"] *
                                      data_frame["plus_cells"])
+
+    # filter the unkown out
+    data_frame = data_frame[data_frame["peptide_safety"] != "unknown"]
+    data_frame = data_frame[data_frame["peptide_safety"] != "other"]
 
     if drop_intermediary_columns == True:
         data_frame = data_frame.drop(['safety_rank',
