@@ -232,7 +232,10 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
     data_frame = data_frame[data_frame["peptide_safety"] != "other"]
 
     if drop_intermediary_columns == True:
-        data_frame = data_frame.drop(['safety_rank',
+        data_frame = data_frame.drop(['MHC Restriction - Class',
+                                      'Assay - Number of Subjects Tested',
+                                        'Assay - Response Frequency (%)',
+                                      'safety_rank',
                                       'peptide_strength',
                                       'averaged_strength',
                                       'averaged_number_subjects_tested',
