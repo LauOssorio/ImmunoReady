@@ -1,3 +1,6 @@
+import numpy as np
+import pandas as pd
+
 def add_relevant_columns (data_frame):
 #Function that creates the same columns in the negative dataset as in the clean positive one
 #(ie the positive dataset after applying the select_columns_and_clean_iedb function
@@ -17,8 +20,8 @@ def add_relevant_columns (data_frame):
     new_data_frame['Assay - Method'] = 'None'
     new_data_frame['Assay - Response measured'] = 'None'
     new_data_frame['Assay - Qualitative Measure'] = 'Negative'
-    new_data_frame['Assay - Number of Subjects Tested'] = 'None'
-    new_data_frame['Assay - Response Frequency (%)'] = 'None'
+    new_data_frame['Assay - Number of Subjects Tested'] = np.nan
+    new_data_frame['Assay - Response Frequency (%)'] = np.nan
     new_data_frame['cell_type_in_assay'] = 'None'
 
     #Rename values in the hla_class column
