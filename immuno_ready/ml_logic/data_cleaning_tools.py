@@ -191,13 +191,13 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
     # Number of experiments - penalising strength score
 
     conditions_penal = [data_frame['1st in vivo Process - Disease'] == 'Healthy',
-                        data_frame["averaged_number_subjects_tested"] <3 ,
+                        data_frame["averaged_number_subjects_tested"] <=3 ,
                         (data_frame["averaged_number_subjects_tested"] >= 4)
                                 & (data_frame["averaged_number_subjects_tested"] < 10),
                         (data_frame["averaged_number_subjects_tested"] >=10)
                                 & (data_frame["averaged_number_subjects_tested"] < 30),
-                            (data_frame["averaged_number_subjects_tested"] >=30),
-                            data_frame["averaged_number_subjects_tested"].isna()
+                        (data_frame["averaged_number_subjects_tested"] >=30),
+                        data_frame["averaged_number_subjects_tested"].isna()
                         ]
 
     choices_penal = [
