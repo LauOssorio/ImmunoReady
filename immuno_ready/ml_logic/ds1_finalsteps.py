@@ -5,7 +5,10 @@ from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 def final_preproc(df):
     droplist = ["1st in vivo Process - Disease",
             "Epitope - Source Organism",
-            "Assay - Qualitative Measure"]
+            "Assay - Qualitative Measure",
+            "1st in vivo Process - Process Type",
+            "cell_type_in_assay"
+            ]
 
     df = df.drop(columns=droplist)
 
