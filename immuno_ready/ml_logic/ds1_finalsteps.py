@@ -91,9 +91,8 @@ def final_preproc(df):
 def ohe(df):
     y = df[['Epitope - Name','peptide_safety','target_strength']]
     X = df[['Epitope - Name','Epitope - Species',
-            '1st in vivo Process - Process Type','1st in vivo Process - Disease Stage',
-            'Assay - Method','Assay - Response measured',
-            'cell_type_in_assay']]
+            '1st in vivo Process - Disease Stage',
+            'Assay - Method','Assay - Response measured']]
 
     excluded_col = 'Epitope - Name'
     categorical_cols = [col for col in X if col != excluded_col]
