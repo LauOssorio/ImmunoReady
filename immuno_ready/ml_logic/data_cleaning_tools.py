@@ -110,25 +110,25 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
         ]
 
     choices_safety = [
-        "very safe",
         "safe",
-        "very safe",
+        "safe",
+        "safe",
         "unknown",
         "very risky - autoimmunity",
-        "very safe",
-        "very safe",
         "safe",
         "safe",
         "safe",
         "safe",
         "safe",
-        "risky",
-        "very safe",
-        "very safe",
-        "very safe",
+        "safe",
+        "safe",
+        "very risky - autoimmunity",
+        "safe",
+        "safe",
+        "safe",
         "unknown",
-        "very safe",
-        "very safe"
+        "safe",
+        "safe"
     ]
 
 
@@ -232,16 +232,10 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
     data_frame = data_frame[data_frame["peptide_safety"] != "other"]
 
     if drop_intermediary_columns == True:
-        data_frame = data_frame.drop(['MHC Restriction - Class',
-                                      'Assay - Number of Subjects Tested',
-                                        'Assay - Response Frequency (%)',
-                                      'safety_rank',
-                                      'peptide_strength',
-                                      'averaged_strength',
-                                      'averaged_number_subjects_tested',
-                                      'penalty_strength',
-                                      'plus_cells'],
-                                     axis=1)
+        data_frame = data_frame["Epitope - Name",
+                                "1st in vivo Process - Process Type",
+                                "peptide_safety",
+                                "peptide_strength"]
 
         return data_frame
     else:
