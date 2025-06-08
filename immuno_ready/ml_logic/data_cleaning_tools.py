@@ -108,27 +108,27 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
         data_frame["1st in vivo Process - Process Type"] =='Administration in vivo to prevent or reduce disease',
         data_frame["1st in vivo Process - Process Type"] == 'None'
         ]
-
+## 0 == "safe", 1 == "very risky - Autoimmunity"
     choices_safety = [
-        "safe",
-        "safe",
-        "safe",
+        0,
+        0,
+        0,
         "unknown",
-        "very risky - autoimmunity",
-        "safe",
-        "safe",
-        "safe",
-        "safe",
-        "safe",
-        "safe",
-        "safe",
-        "very risky - autoimmunity",
-        "safe",
-        "safe",
-        "safe",
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
         "unknown",
-        "safe",
-        "safe"
+        0,
+        0
     ]
 
 
