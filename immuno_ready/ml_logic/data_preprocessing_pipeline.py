@@ -31,46 +31,24 @@ def slice_pretraining_func(df, number_of_observations):
     risky_df = df[df['peptide_safety'] == 1]
 
 
-    max_safe = min(len(risky_df), number_of_observations)
+    max_safe = min(len(risky_df), int(number_of_observations))
 
-    n_diseases = (safe_df["1st in vivo Process - Process Type"].nunique())
-    max_safe_per_disease_group =  max_safe/n_diseases
-
-
-    # max_risky = len(risky_df)
-    # max_safe_per_disease_group = safe_df.groupby("1st in vivo Process - Process Type").size().min()
-    # n_diseases = safe_df["1st in vivo Process - Process Type"].nunique()
-    # max_safe = max_safe_per_disease_group * n_diseases
-    # max_total = max_safe + max_risky
-
-    # # Adjust total number of observations if needed
-    # number_of_observations = min(number_of_observations, max_total)
-
+    n_diseases = (safe_df["disease_group"].nunique())
+    max_safe_per_disease_group = int(max_safe // n_diseases)
 
   # Group safe peptides by type of disease
-    safe_disease_groups = safe_df.groupby("1st in vivo Process - Process Type")
-    n_diseases = safe_disease_groups.ngroups
+    safe_disease_groups = safe_df.groupby("disease_group")
 
-    # Find the minimum group size among safe disease groups
-    min_group_size = safe_disease_groups.size().min()
-
-    # Determine how many samples to take per disease group (cannot exceed min_group_size)
-    samples_per_disease = min(n_safe // n_diseases, min_group_size)
-
-    # Total safe samples that can actually be taken
-    actual_n_safe = samples_per_disease * n_diseases
-    actual_n_risky = n_observations - actual_n_safe
-
-
-    # Resample from each disease group
+        # Resample from each disease group
     balanced_safe = pd.concat([
-        resample(group, replace=False, n_samples=samples_per_disease, random_state=42)
+        resample(group, replace=False, n_samples = max_safe_per_disease_group, random_state = 42)
         for _, group in safe_disease_groups #ignoring the name of the group from GroupBy object
     ])
 
 
+
         # ---- Sample risky peptides ----
-    sampled_risky = risky_df.sample(n=n_risky, random_state=42)
+    sampled_risky = risky_df.sample(n = max_safe, random_state=42)
 
     # ---- Combine ----
     final_df = pd.concat([balanced_safe, sampled_risky], ignore_index=True)
