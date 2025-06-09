@@ -40,14 +40,20 @@ def slice_pretraining_func(df, number_of_observations):
     max_safe = min(len(risky_df), int(number_of_observations))
 
     n_diseases = (safe_df["disease_group"].nunique())
-    max_safe_per_disease_group = int(max_safe // n_diseases)
+
+    #max_safe_per_disease_group = int(max_safe // n_diseases)
 
   # Group safe peptides by type of disease
     safe_disease_groups = safe_df.groupby("disease_group")
+    group_counts = safe_disease_groups.size()
+
+    # Find the group with the smallest count
+    smallest_count = group_counts.min()
+
 
         # Resample from each disease group
     balanced_safe = pd.concat([
-        resample(group, replace=False, n_samples = max_safe_per_disease_group, random_state = 42)
+        resample(group, replace=False, n_samples = smallest_count, random_state = 42)
         for _, group in safe_disease_groups #ignoring the name of the group from GroupBy object
     ])
 
