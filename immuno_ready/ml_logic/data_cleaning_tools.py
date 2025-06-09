@@ -108,27 +108,27 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
         data_frame["1st in vivo Process - Process Type"] =='Administration in vivo to prevent or reduce disease',
         data_frame["1st in vivo Process - Process Type"] == 'None'
         ]
-
+## 0 == "safe", 1 == "very risky - Autoimmunity"
     choices_safety = [
-        "very safe",
-        "safe",
-        "very safe",
+        0,
+        0,
+        0,
         "unknown",
-        "very risky - autoimmunity",
-        "very safe",
-        "very safe",
-        "safe",
-        "safe",
-        "safe",
-        "safe",
-        "safe",
-        "risky",
-        "very safe",
-        "very safe",
-        "very safe",
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
         "unknown",
-        "very safe",
-        "very safe"
+        0,
+        0
     ]
 
 
@@ -137,26 +137,20 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
     # Now, if a peptide has different values,
     # keep the most conservative one = the one that states more risk
 
+    # filter the unkown out
+    data_frame = data_frame[data_frame["peptide_safety"] != "unknown"]
+    data_frame = data_frame[data_frame["peptide_safety"] != "other"]
 
-    safety_rank = {
-        "very risky - autoimmunity": 0,
-        "risky": 1,
-        "safe": 2,
-        "very safe": 3,
-        "unknown": 4,
-        "other": 5
-    }
+    # Convert to integer the column peptide safety
+    data_frame['peptide_safety'] = data_frame['peptide_safety'].fillna(0).astype(int)
 
-    # Add numeric rank to help pick the most conservative
-    data_frame["safety_rank"] = data_frame["peptide_safety"].map(safety_rank)
+    # To be conservative, sum the peptide safety values of each peptide,
+    #if this value is one or greater, keep 1 (risky peptide)
+    peptide_safety_sum = data_frame.groupby("Epitope - Name")["peptide_safety"].sum()
+    data_frame["peptide_safety_sum"] = data_frame["Epitope - Name"].map(peptide_safety_sum)
+    data_frame['peptide_safety'] = data_frame['peptide_safety_sum'].clip(upper=1)
 
-    # Now group by peptide_sequence and keep the row with the lowest (most conservative) rank
-    data_frame = (
-        data_frame.sort_values("safety_rank")
-        .drop_duplicates(subset="Epitope - Name", keep="first")
-    )
-
-        # strength: from 0 to 10 (arbitrary)
+        # Immunity strength
 
     conditions_strength = [data_frame['1st in vivo Process - Disease'] == 'Healthy',
                         data_frame["Assay - Qualitative Measure"] == 'Positive',
@@ -227,21 +221,38 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
                                      data_frame["penalty_strength"] *
                                      data_frame["plus_cells"])
 
-    # filter the unkown out
-    data_frame = data_frame[data_frame["peptide_safety"] != "unknown"]
-    data_frame = data_frame[data_frame["peptide_safety"] != "other"]
+
+    mapping_disease = {
+    'Occurrence of autoimmune disease': 'Autoimmune_Transplant',
+    'Transplant/transfusion': 'Autoimmune_Transplant',
+
+    'Occurrence of infectious disease': 'Infectious',
+
+    'Occurrence of allergy': 'Allergy',
+
+    'Prophylactic vaccination': 'Vaccination_Therapeutic',
+    'Vaccination': 'Vaccination_Therapeutic',
+    'Therapeutic vaccination': 'Vaccination_Therapeutic',
+    'Administration in vivo to prevent or reduce disease': 'Vaccination_Therapeutic',
+
+    'Exposure with existing immune reactivity without evidence for disease': 'Other_Exposure_Disease',
+    'Environmental exposure to endemic/ubiquitous agent without evidence for disease': 'Other_Exposure_Disease',
+    'Occurrence of disease': 'Other_Exposure_Disease',
+    'Exposure without evidence for disease': 'Other_Exposure_Disease',
+    'Documented exposure without evidence for disease': 'Other_Exposure_Disease',
+    'Administration in vivo': 'Other_Exposure_Disease',
+    'Administration in vivo to cause disease': 'Other_Exposure_Disease',
+    'None': 'Other_Exposure_Disease'
+    }
+
+    data_frame['disease_group'] = data_frame['1st in vivo Process - Process Type'].map(mapping_disease)
+
 
     if drop_intermediary_columns == True:
-        data_frame = data_frame.drop(['MHC Restriction - Class',
-                                      'Assay - Number of Subjects Tested',
-                                        'Assay - Response Frequency (%)',
-                                      'safety_rank',
-                                      'peptide_strength',
-                                      'averaged_strength',
-                                      'averaged_number_subjects_tested',
-                                      'penalty_strength',
-                                      'plus_cells'],
-                                     axis=1)
+        data_frame = data_frame[["Epitope - Name",
+                                "disease_group",
+                                "peptide_safety",
+                                "target_strength"]].drop_duplicates()
 
         return data_frame
     else:
