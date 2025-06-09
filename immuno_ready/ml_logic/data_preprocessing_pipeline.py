@@ -10,10 +10,10 @@ import numpy as np
 from sklearn.utils import resample
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from add_relevant_columns import *
-from peptide_cleaning import *
-from data_cleaning_tools import *
-from aa_dataset import *
+from immuno_ready.ml_logic.add_relevant_columns import *
+from immuno_ready.ml_logic.peptide_cleaning import *
+from immuno_ready.ml_logic.data_cleaning_tools import *
+from immuno_ready.ml_logic.aa_dataset import *
 import os
 
 
