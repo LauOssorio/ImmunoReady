@@ -61,13 +61,13 @@ def slice_pretraining_func(df, number_of_observations):
 
 
 
-def balance_prepare_training_set(data_positives, data_negatives, number_of_observations = 6000):
+def balance_prepare_training_set(data_positives, data_negatives,balance_classes=True, number_of_observations = 6000):
 
     """
     Combines, balances, cleans, and processes positive and negative peptide datasets
     into a unified training set with target features.
     If the whole dataset is to be used, set the number of observations to 1000000000.
-    
+
     This function:
     - Cleans and standardizes the input positive and negative datasets.
     - Merges them into a single DataFrame.
@@ -113,9 +113,13 @@ def balance_prepare_training_set(data_positives, data_negatives, number_of_obser
 
     dataset_target = create_target_features(full_dataset_clean)
 
-    balanced_training_df = slice_pretraining_func(dataset_target, number_of_observations)
+    if balance_classes ==True:
 
-    return balanced_training_df
+        balanced_training_df = slice_pretraining_func(dataset_target, number_of_observations)
+
+        return balanced_training_df
+    else:
+        return dataset_target
 
 
 
