@@ -198,4 +198,6 @@ cython_debug/
 .cursorignore
 .cursorindexingignoreraw_data/
 
+
+# mac files
 .DS_Store
