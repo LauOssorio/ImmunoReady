@@ -9,13 +9,12 @@ import pandas as pd
 import numpy as np
 from sklearn.utils import resample
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from add_relevant_columns import *
-from peptide_cleaning import *
-from data_cleaning_tools import *
-from aa_dataset import *
+from keras import preprocessing
+from immuno_ready.ml_logic.add_relevant_columns import *
+from immuno_ready.ml_logic.peptide_cleaning import *
+from immuno_ready.ml_logic.data_cleaning_tools import *
+from immuno_ready.ml_logic.aa_dataset import *
 import os
-
 
 
 def slice_pretraining_func(df, number_of_observations):
@@ -230,7 +229,7 @@ def split_training_set(dataset_target,
     X_train_matrix = generate_matrices_for_dataset(X_train, pca_table)
     X_val_matrix = generate_matrices_for_dataset(X_val, pca_table)
 
-    X_train_matrix_pad = pad_sequences(X_train_matrix, dtype='float32', padding='post')
-    X_val_matrix_pad = pad_sequences(X_val_matrix, dtype='float32', padding='post')
+    X_train_matrix_pad = preprocessing.sequence.pad_sequences(X_train_matrix, dtype='float32', padding='post')
+    X_val_matrix_pad = preprocessing.sequence.pad_sequences(X_val_matrix, dtype='float32', padding='post')
 
     return y_train_class, y_val_class, y_train_reg, y_val_reg, X_train_matrix_pad, X_val_matrix_pad

@@ -197,3 +197,7 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignoreraw_data/
+
+
+# mac files
+.DS_Store

@@ -131,6 +131,7 @@ def create_target_features(data_frame, drop_intermediary_columns = True):
         0
     ]
 
+    choices_safety = [str(x) for x in choices_safety]
 
     data_frame["peptide_safety"] = np.select(conditions_safety, choices_safety, default = "other")
 
