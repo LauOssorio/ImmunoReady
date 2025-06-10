@@ -195,35 +195,35 @@ def split_training_set(dataset_target,
 
     pca_table = pd.read_csv(pca_table_path)
 
-    class_0 = dataset_target[dataset_target['peptide_safety'] == 0]
-    class_1 = dataset_target[dataset_target['peptide_safety'] == 1]
+    # class_0 = dataset_target[dataset_target['peptide_safety'] == 0]
+    # class_1 = dataset_target[dataset_target['peptide_safety'] == 1]
 
-    val_size= validation_size
-    n_val_samples = int(len(dataset_target) * val_size)
-    n_class0_val = int(n_val_samples * 0.9)
-    n_class1_val = n_val_samples - n_class0_val
+    # val_size= validation_size
+    # n_val_samples = int(len(dataset_target) * val_size)
+    # n_class0_val = int(n_val_samples * 0.9)
+    # n_class1_val = n_val_samples - n_class0_val
 
-    val_class0 = class_0.sample(n=n_class0_val, random_state=42)
-    val_class1 = class_1.sample(n=n_class1_val, random_state=42)
+    # val_class0 = class_0.sample(n=n_class0_val, random_state=42)
+    # val_class1 = class_1.sample(n=n_class1_val, random_state=42)
 
-    val_df = pd.concat([val_class0, val_class1])
-    train_df = ddataset_targetf.drop(val_df.index)
+    # val_df = pd.concat([val_class0, val_class1])
+    # train_df = dataset_target.drop(val_df.index)
 
-    X_train = train_df.drop(columns=['peptide_safety', 'target_strength', 'disease_group'])
-    y_train_class = train_df['peptide_safety']
-    y_train_reg =train_df['target_strength']
+    # X_train = train_df.drop(columns=['peptide_safety', 'target_strength', 'disease_group'])
+    # y_train_class = train_df['peptide_safety']
+    # y_train_reg =train_df['target_strength']
 
-    X_val = val_df.drop(columns=['peptide_safety', 'target_strength', 'disease_group'])
-    y_val_class = val_df['peptide_safety']
-    y_val_reg = val_df['target_strength']
+    # X_val = val_df.drop(columns=['peptide_safety', 'target_strength', 'disease_group'])
+    # y_val_class = val_df['peptide_safety']
+    # y_val_reg = val_df['target_strength']
 
-    # X = dataset_target.drop(columns=['peptide_safety', 'target_strength', 'disease_group'])
-    # y_class = dataset_target['peptide_safety']
-    # y_reg = dataset_target['target_strength']
+    X = dataset_target.drop(columns=['peptide_safety', 'target_strength', 'disease_group'])
+    y_class = dataset_target['peptide_safety']
+    y_reg = dataset_target['target_strength']
 
 
-    # X_train, X_val, y_train_class, y_val_class = train_test_split(X, y_class, test_size = 0.3, random_state = 42)
-    # X_train, X_val, y_train_reg, y_val_reg = train_test_split(X, y_reg, test_size = 0.3, random_state = 42)
+    X_train, X_val, y_train_class, y_val_class = train_test_split(X, y_class, test_size = 0.3, random_state = 42)
+    X_train, X_val, y_train_reg, y_val_reg = train_test_split(X, y_reg, test_size = 0.3, random_state = 42)
 
 
 
