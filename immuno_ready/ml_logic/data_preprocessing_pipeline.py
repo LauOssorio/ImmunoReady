@@ -198,7 +198,7 @@ def split_training_set(dataset_target,
     class_0 = dataset_target[dataset_target['peptide_safety'] == 0]
     class_1 = dataset_target[dataset_target['peptide_safety'] == 1]
 
-    val_size= 0.3
+    val_size= validation_size
     n_val_samples = int(len(dataset_target) * val_size)
     n_class0_val = int(n_val_samples * 0.9)
     n_class1_val = n_val_samples - n_class0_val
