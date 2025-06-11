@@ -201,3 +201,4 @@ cython_debug/
 
 # mac files
 .DS_Store
+*.json
