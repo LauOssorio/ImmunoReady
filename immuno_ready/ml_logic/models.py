@@ -48,13 +48,19 @@ def fit_LSTM(
         restore_best_weights=True,
         verbose=1)
 
+    reduce_lr = callbacks.ReduceLROnPlateau(
+        monitor='val_loss',
+        factor=0.2,
+        patience=5,
+        min_lr=1e-6)
+
     history = model.fit(
         X,
         y,
         validation_data=validation_data,
         epochs=100,         # Use early stopping in practice
         batch_size=batch_size,
-        callbacks=[es],
+        callbacks=[es, reduce_lr],
         verbose=1)
 
     print(f"✅ Model trained with val accuracy: {round(np.max(history.history['val_accuracy']), 2)}")
