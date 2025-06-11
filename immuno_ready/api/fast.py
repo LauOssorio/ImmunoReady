@@ -55,15 +55,20 @@ def predict(request: PredictionRequest) -> dict:
         y_pred = model.predict(X_pred_pad_cut)
         prob = float(y_pred[0][0])
 
-        if prob < 0.5:
+        if len(peptide)<8 or len(peptide)>25:
+            prediction = "Peptide lenght not in range (8-25 AA)"
+            ret_prob = None
+        elif prob < 0.5:
             prediction = "Peptide is safe"
+            ret_prob = f"{round(prob*100, 2)} %"
         else:
             prediction = "Peptide is dangerous, may trigger auto immune response"
+            ret_prob = f"{round(prob*100, 2)} %"
 
         results.append({
             "peptide": peptide,
             "predicted_class": prediction,
-            "probality_of_unsafe": f"{round(prob*100, 2)} %"
+            "probality_of_unsafe": ret_prob
         })
 
     return dict(predictions=results)
