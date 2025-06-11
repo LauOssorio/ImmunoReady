@@ -140,5 +140,5 @@ def pred(
     X_pred_pad_cut = X_pred_pad[:, :, :14]
     y_pred = model.predict(X_pred_pad_cut)
 
-    print("\n✅ prediction done: ", y_pred, "\n")
+    print("\n✅ prediction done: ", type(float(y_pred[0][0])), "\n")
     return y_pred[0][0]
