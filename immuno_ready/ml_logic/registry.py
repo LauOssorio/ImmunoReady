@@ -6,7 +6,7 @@ from colorama import Fore, Style
 from immuno_ready.params import *
 
 
-def save_results(params: dict, metrics: dict, task:str) -> None:
+def save_results(params: dict, metrics: dict) -> None:
     """
     Persist params & metrics locally on the hard drive at
     "{LOCAL_REGISTRY_PATH}/params/{current_timestamp}.pickle"
@@ -16,26 +16,26 @@ def save_results(params: dict, metrics: dict, task:str) -> None:
 
     # Save params locally
     if params is not None:
-        params_path = os.path.join(LOCAL_REGISTRY_PATH, "params", "immunoready",task, timestamp + ".pickle")
+        params_path = os.path.join(LOCAL_REGISTRY_PATH, "params", "immunoready", timestamp + ".pickle")
         with open(params_path, "wb") as file:
             pickle.dump(params, file)
 
     # Save metrics locally
     if metrics is not None:
-        metrics_path = os.path.join(LOCAL_REGISTRY_PATH, "metrics", "immunoready", task, timestamp + ".pickle")
+        metrics_path = os.path.join(LOCAL_REGISTRY_PATH, "metrics", "immunoready", timestamp + ".pickle")
         with open(metrics_path, "wb") as file:
             pickle.dump(metrics, file)
 
     print("✅ Results saved locally")
 
-def save_model(task, model: keras.Model = None) -> None:
+def save_model(model: keras.Model = None) -> None:
     """
     Persist trained model it in your bucket on GCS at "models/immunoready/{timestamp}.keras"
     """
     timestamp = time.strftime("%Y%m%d-%H%M%S")
     model_filename = f"{timestamp}.keras"
 
-    model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", "immunoready", task, f"{timestamp}.keras")
+    model_path = os.path.join(LOCAL_REGISTRY_PATH, "models", "immunoready", f"{timestamp}.keras")
     model.save(model_path)
 
     client = storage.Client()

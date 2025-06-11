@@ -22,7 +22,7 @@ from immuno_ready.ml_logic.add_relevant_columns import add_relevant_columns
 from immuno_ready.ml_logic.peptide_cleaning import peptide_cleaning
 from immuno_ready.ml_logic.ds1_finalsteps import final_preproc, ohe
 from immuno_ready.ml_logic.aa_dataset import generate_matrix_for_peptide, generate_matrices_for_dataset
-from immuno_ready.ml_logic.models import *
+from immuno_ready.ml_logic.models import initialize_LSTM, compile_LSTM, fit_LSTM
 from immuno_ready.ml_logic.registry import save_results, save_model, load_model
 from immuno_ready.ml_logic.data_preprocessing_pipeline import slice_pretraining_func, balance_prepare_training_set, split_training_set
 
@@ -84,8 +84,7 @@ def preprocess(
 
 
 
-def train_LSTM_classifier(
-        task="classifier",
+def train_LSTM(
         learning_rate=0.001,
         batch_size=32,
         patience=10
@@ -97,9 +96,9 @@ def train_LSTM_classifier(
     X_train_matrix_pad, X_val_matrix_pad = X[0], X[1]
     y_train, y_val = y_class[0], y_class[1]
 
-    model = initialize_LSTM_classifier((X_train_matrix_pad.shape[1], X_train_matrix_pad.shape[2]))
-    model = compile_LSTM_classifier(model=model)
-    model, history = fit_LSTM_classifier(
+    model = initialize_LSTM((X_train_matrix_pad.shape[1], X_train_matrix_pad.shape[2]))
+    model = compile_LSTM(model=model)
+    model, history = fit_LSTM(
         model=model,
         X=X_train_matrix_pad,
         y=y_train,
@@ -114,57 +113,15 @@ def train_LSTM_classifier(
     )
 
     # Save results on the hard drive
-    save_results(task, params=params, metrics=dict(accuracy=val_accuracy))
+    save_results(params=params, metrics=dict(accuracy=val_accuracy))
     # Save model weight on the hard drive and on GCS
-    save_model(task, model=model)
+    save_model(model=model)
 
     print("\n✅ fit done:\n")
     return val_accuracy
 
-
-
-def train_LSTM_regressor(
-        task="regressor",
-        learning_rate=0.001,
-        batch_size=32,
-        patience=10
-    ) -> float:
-    """
-    """
-    X, y_class, y_reg = preprocess()
-
-    X_train_matrix_pad, X_val_matrix_pad = X[0], X[1]
-    y_train, y_val = y_class[0], y_class[1]
-
-    model = initialize_LSTM_regressor((X_train_matrix_pad.shape[1], X_train_matrix_pad.shape[2]))
-    model = compile_LSTM_regressor(model=model)
-    model, history = fit_LSTM_regressor(
-        model=model,
-        X=X_train_matrix_pad,
-        y=y_train,
-        validation_data=(X_val_matrix_pad, y_val)
-    )
-
-    val_mae = np.max(history.history['val_mae'])
-
-    params = dict(
-        context="train",
-        row_count=len(X_train_matrix_pad)
-    )
-
-    # Save results on the hard drive
-    save_results(task, params=params, metrics=dict(accuracy=val_mae))
-    # Save model weight on the hard drive and on GCS
-    save_model(task, model=model)
-
-    print("\n✅ fit done:\n")
-    return val_mae
-
-
-
-def pred_classifier(
-    task = 'classifier',
-    peptide: AnyStr = None,
+def pred(
+    peptid: AnyStr = None,
     ds2_path:str = "immuno_ready/data/dataset3_pca.csv"
     ) -> np.ndarray:
     """
@@ -173,7 +130,7 @@ def pred_classifier(
     model = load_model()
     assert model is not None
 
-    X_pred = generate_matrix_for_peptide(peptide, pd.read_csv(ds2_path))
+    X_pred = generate_matrix_for_peptide(peptid, pd.read_csv(ds2_path))
     X_pred_pad = preprocessing.sequence.pad_sequences(
         sequences=X_pred,
         maxlen=25,
