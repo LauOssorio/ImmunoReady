@@ -1,3 +1,5 @@
+Disclaimer: this repo was created for learning and teaching purposes in the context of a Data Science bootcamp. Results have not scientif value and code is not peer-reviewed. Do not use for research
+
 # ImmunoReady
 This repository provides a machine learning-based pipeline to predict the immunogenicity of peptides for use in **cancer vaccine development**.
 
