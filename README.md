@@ -51,7 +51,3 @@ clean_target_df = peptide_cleaning(target_df)
 # Implement encoding of categorical features
 
 ´´´
-
-
-TODO:
-- add a filter for small peptides: not less than 8 amino acids
